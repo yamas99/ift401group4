@@ -52,23 +52,7 @@
         </div>
     </div>
     <div id="content">
-        <div id="slideshow">
-            <div class="slide active" style="background-image: url('/assets/images/slide1.jpg');"></div>
-            <div class="slide" style="background-image: url('/assets/images/slide2.jpg');"></div>
-            <div class="slide" style="background-image: url('/assets/images/slide3.jpg');"></div>
-        </div>
         {% block content %}{% endblock %}
     </div>
-    <script>
-        let slides = document.querySelectorAll('.slide');
-        let index = 0;
-        
-        function nextSlide() {
-            slides[index].classList.remove('active');
-            index = (index + 1) % slides.length;
-            slides[index].classList.add('active');
-        }
-        setInterval(nextSlide, 5000);
-    </script>
 </body>
 </html>
