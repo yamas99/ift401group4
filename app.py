@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import login_required
 import os
 
 app = Flask(__name__)
@@ -14,21 +15,63 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/account')
-def index():
-    return render_template('account.html')
-
-@app.route('/buy')
-def index():
-    return render_template('buy.html')
+@app.route('/profile')
+#@login_required
+def profile():
+    return render_template('profile.html')
 
 @app.route('/dashboard')
-def index():
+#@login_required
+def dashboard():
     return render_template('dashboard.html')
+
+@app.route('/buy')
+#@login_required
+def buy():
+    return render_template('buy.html')
+
+@app.route('/sell')
+#@login_required
+def sell():
+    return render_template('sell.html')
+
+@app.route('/cashaccount')
+#@login_required
+def cashaccount():
+    return render_template('cashaccount.html')
+
+@app.route('/transactions')
+#@login_required
+def transactions():
+    return render_template('transactions.html')
+
+@app.route('/marketoptions')
+#@login_required
+def marketoptions():
+    return render_template('admin/marketoptions.html')
+
+@app.route('/stock')
+#@login_required
+def stock():
+    return render_template('admin/stock.html')
+
+@app.route('/users')
+#@login_required
+def users():
+    return render_template('admin/users.html')
+
+@app.route('/admin')
+#@login_required
+def admin():
+    return render_template('admin/admin.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
