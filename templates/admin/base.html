@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
-        <a href="{{url_for('index')}}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <a href="{{url_for('admin')}}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
           <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
           <span class="fs-4">Stock Trainer</span>
         </a>
@@ -18,39 +18,21 @@
         <ul class="nav nav-pills flex-column mb-auto">
           <li class="nav-item">
           <li>
-            <a href="{{url_for('dashboard')}}" class="nav-link text-white">
-              <i class="bi bi-speedometer2 me-2" style="font-size: 16px;"></i>
-              Dashboard
+            <a href="{{url_for('marketoptions')}}" class="nav-link text-white">
+              <i class="bi bi-clock-fill me-2" style="font-size: 16px;"></i>
+              Market Schedule
             </a>
           </li>
           <li>
-            <a href="{{url_for('buy')}}" class="nav-link text-white">
-              <i class="bi bi-cart-plus me-2" style="font-size: 16px;"></i>
-              Buy Stocks
+            <a href="{{url_for('stock')}}" class="nav-link text-white">
+              <i class="bi bi-cash-coin me-2" style="font-size: 16px;"></i>
+              Modify Stocks
             </a>
           </li>
           <li>
-            <a href="{{url_for('sell')}}" class="nav-link text-white">
-              <i class="bi bi-cart-dash me-2" style="font-size: 16px;"></i>
-              Sell Stocks
-            </a>
-          </li>
-          <li>
-            <a href="{{url_for('cashaccount')}}" class="nav-link text-white">
-              <i class="bi bi-cash-stack me-2" style="font-size: 16px;"></i>
-              Cash Account
-            </a>
-          </li>
-          <li>
-            <a href="{{url_for('transactions')}}" class="nav-link text-white">
-              <i class="bi bi-journal-text me-2" style="font-size: 16px;"></i>
-              Transactions
-            </a>
-          </li>
-          <li>
-            <a href="{{url_for('admin')}}" class="nav-link text-white">
+            <a href="{{url_for('users')}}" class="nav-link text-white">
               <i class="bi bi-people-fill me-2" style="font-size: 16px;"></i>
-              Admin Dashboard
+              User List
             </a>
           </li>
         </ul>
