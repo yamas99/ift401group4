@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import login_required
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 import os
 
 app = Flask(__name__)
