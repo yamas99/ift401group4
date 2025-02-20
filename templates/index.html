@@ -3,7 +3,6 @@
 {% block content %}
     <div>
         <h1>Welcome to the Homepage</h1>
-        <p>This is a simple Flask website with a collapsible left navbar.</p>
-        <button class="btn-custom">Click Me</button>
+        <a href="{{ url_for('login') }}" class="btn-custom">Login</a>
     </div>
 {% endblock %}
