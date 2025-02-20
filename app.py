@@ -21,6 +21,10 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+# Initialize database
+with app.app_context():
+    db.create_all()
+
 # Routes
 @app.route('/')
 def index():
