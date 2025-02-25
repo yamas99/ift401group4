@@ -2,7 +2,16 @@
 
 {% block content %}
     <div>
-        <h1>Welcome to the User Profile Page</h1>
+        <h1>Welcome to the User Profile Page, {{ current_user.fullName }}</h1>
+
+        {% if current_user.role == "user" %}
+        <h3>You are a user.</h3>
+        {% endif %}
+        
+        {% if current_user.role == "admin" %}
+        <h3>You are an admin.</h3>
+        {% endif %}
+        
         {% if current_user.is_authenticated %}
                 <h2><a href="/logout">Emergency Logout Link Replace This Later or Else</a></h2>
         {% endif %}

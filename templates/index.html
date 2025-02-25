@@ -3,6 +3,8 @@
 {% block content %}
     <div>
         <h1>Welcome to the Homepage</h1>
-        <a href="{{ url_for('login') }}" class="btn-custom">Login</a>
+        {% if current_user.is_authenticated == false %}
+            <a href="{{ url_for('login') }}" class="btn-custom">Login</a>
+        {% endif %}
     </div>
 {% endblock %}

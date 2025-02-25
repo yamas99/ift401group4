@@ -38,55 +38,55 @@ def index():
 
 
 @app.route('/profile')
-#@login_required
+@login_required
 def profile():
     return render_template('profile.html')
 
 
 @app.route('/dashboard')
-#@login_required
+@login_required
 def dashboard():
     return render_template('dashboard.html')
 
 
 @app.route('/buy')
-#@login_required
+@login_required
 def buy():
     return render_template('buy.html')
 
 
 @app.route('/sell')
-#@login_required
+@login_required
 def sell():
     return render_template('sell.html')
 
 
 @app.route('/cashaccount')
-#@login_required
+@login_required
 def cashaccount():
     return render_template('cashaccount.html')
 
 
 @app.route('/transactions')
-#@login_required
+@login_required
 def transactions():
     return render_template('transactions.html')
 
 
 @app.route('/marketoptions')
-#@login_required
+@login_required
 def marketoptions():
     return render_template('admin/marketoptions.html')
 
 
 @app.route('/stock')
-#@login_required
+@login_required
 def stock():
     return render_template('admin/stock.html')
 
 
 @app.route('/users')
-#@login_required
+@login_required
 def users():
     return render_template('admin/users.html')
 
@@ -110,7 +110,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
-
 
 
 @app.route('/register', methods=["GET", "POST"])
