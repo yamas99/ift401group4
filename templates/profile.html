@@ -3,5 +3,8 @@
 {% block content %}
     <div>
         <h1>Welcome to the User Profile Page</h1>
+        {% if current_user.is_authenticated %}
+                <h2><a href="/logout">Emergency Logout Link Replace This Later or Else</a></h2>
+        {% endif %}
     </div>
 {% endblock %}
