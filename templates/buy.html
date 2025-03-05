@@ -4,4 +4,18 @@
     <div>
         <h1>Welcome to the Stock Purchase Page</h1>
     </div>
+
+<h2>Buy Stocks</h2>
+<form method="POST">
+    <label for="stock_symbol">Stock Symbol:</label>
+    <input type="text" name="stock_symbol" required>
+
+    <label for="shares">Number of Shares:</label>
+    <input type="number" name="shares" required>
+
+    <label for="price_per_share">Price per Share:</label>
+    <input type="number" step="0.01" name="price_per_share" required>
+
+    <button type="submit">Buy</button>
+</form>
 {% endblock %}
