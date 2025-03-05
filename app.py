@@ -66,8 +66,29 @@ def dashboard():
 @app.route('/buy')
 #@login_required
 def buy():
-    return render_template('buy.html')
+    if request.method == 'POST':
+        stock_symbol = request.form['stock_symbol'].upper()
+        shares = int(request.form['shares'])
+        price_per_share = float(request.form['price_per_share'])
 
+        if shares <= 0 or price_per_share <= 0:
+            flash("Invalid stock purchase data!", "danger")
+            return redirect(url_for('buy'))
+
+        new_transaction = StockTransaction(
+            user_id=current_user.id,
+            stock_symbol=stock_symbol,
+            shares=shares,
+            price_per_share=price_per_share,
+            transaction_type="BUY"
+        )
+
+        db.session.add(new_transaction)
+        db.session.commit()
+        flash(f"Successfully bought {shares} shares of {stock_symbol}!", "success")
+        return redirect(url_for('dashboard'))
+
+    return render_template('buy.html')
 
 @app.route('/sell')
 #@login_required
