@@ -63,7 +63,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@app.route('/buy')
+@app.route('/buy', methods=['GET', 'POST'])
 #@login_required
 def buy():
     if request.method == 'POST':
@@ -93,6 +93,31 @@ def buy():
 @app.route('/sell')
 #@login_required
 def sell():
+    if request.method == 'POST':
+        stock_symbol = request.form['stock_symbol'].upper()
+        shares_to_sell = int(request.form['shares'])
+
+        owned_shares = db.session.query(
+            db.func.sum(StockTransaction.shares)
+        ).filter_by(user_id=current_user.id, stock_symbol=stock_symbol).scalar() or 0
+
+        if shares_to_sell > owned_shares:
+            flash("Not enough shares to sell!", "danger")
+            return redirect(url_for('sell'))
+
+        new_transaction = StockTransaction(
+            user_id=current_user.id,
+            stock_symbol=stock_symbol,
+            shares=-shares_to_sell, 
+            price_per_share=0,  
+            transaction_type="SELL"
+        )
+
+        db.session.add(new_transaction)
+        db.session.commit()
+        flash(f"Successfully sold {shares_to_sell} shares of {stock_symbol}!", "success")
+        return redirect(url_for('dashboard'))
+
     return render_template('sell.html')
 
 
