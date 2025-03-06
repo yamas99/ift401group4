@@ -123,7 +123,7 @@ def buy():
         new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
         db.session.add(new_transaction)
         db.session.commit()
-        flash(f"Bought {shares} shares of {stock_symbol}!", "success")
+        flash(f"Bought {shares} share(s) of {stock_symbol}!", "success")
     
     return render_template('buy.html')
 
@@ -143,7 +143,7 @@ def sell():
         
         account = Account.query.filter_by(user_id=current_user.id, stock_id=stock.id).first()
         if not account or account.shares < shares_to_sell:
-            flash("Not enough shares to sell!", "danger")
+            flash("Insufficient shares!", "danger")
             return redirect(url_for('sell'))
         
         account.shares -= shares_to_sell
@@ -152,7 +152,7 @@ def sell():
         new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
         db.session.add(new_transaction)
         db.session.commit()
-        flash(f"Sold {shares_to_sell} shares of {stock_symbol}!", "success")
+        flash(f"Sold {shares_to_sell} share(s) of {stock_symbol}!", "success")
     
     return render_template('sell.html', owned_stocks=owned_stocks)
 
