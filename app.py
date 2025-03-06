@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from functools import wraps
 import os
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/project_db'
@@ -31,7 +33,7 @@ class Stock(db.Model):
     stock_symbol = db.Column(db.String(10), unique=True, nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
 
-# Account model (User's held stocks)
+# Account model
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -49,31 +51,49 @@ class Transaction(db.Model):
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 
-# User loader, initialize database
+# User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Create tables
 with app.app_context():
     db.create_all()
+
+# Admin role required decorator - Checks to see if the user is an admin
+# Note! This decorator MUST be placed after the login_required decorator
+def admin_role_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.admin:
+            abort(403)
+        return func(*args, **kwargs)
+    return decorated_view
 
 # Routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
 @app.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html')
-
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/cashaccount')
+@login_required
+def cashaccount():
+    return render_template('cashaccount.html')
+
+@app.route('/transactions')
+@login_required
+def transactions():
+    return render_template('transactions.html')
 
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
@@ -137,40 +157,34 @@ def sell():
     return render_template('sell.html', owned_stocks=owned_stocks)
 
 
-@app.route('/cashaccount')
-@login_required
-def cashaccount():
-    return render_template('cashaccount.html')
-
-
-@app.route('/transactions')
-@login_required
-def transactions():
-    return render_template('transactions.html')
-
+#Admin routes - Admin role required
 
 @app.route('/marketoptions')
 @login_required
+@admin_role_required
 def marketoptions():
     return render_template('admin/marketoptions.html')
 
-
 @app.route('/stock')
 @login_required
+@admin_role_required
 def stock():
     return render_template('admin/stock.html')
 
-
 @app.route('/users')
 @login_required
+@admin_role_required
 def users():
     return render_template('admin/users.html')
 
-
 @app.route('/admin')
 @login_required
+@admin_role_required
 def admin():
     return render_template('admin/admin.html')
+
+
+# Login, logout, register routes
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -187,8 +201,6 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
-
-
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -203,6 +215,7 @@ def register():
         db.session.commit()
         return redirect(url_for("login"))
     return render_template("register.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True)
