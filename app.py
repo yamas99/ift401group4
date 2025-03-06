@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 import os
@@ -13,35 +13,47 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # User model
-class Users(db.Model, UserMixin):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
     fullName = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(10), nullable=False)
+    cash_balance = db.Column(db.Float, nullable=False, default=10000.0)  # Default starting balance
 
     def __repr__(self):
         return '<User %r>' % self.username
 
-# Stock Transaction model (NEW)
-class StockTransaction(db.Model):
+# Stock model
+class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    stock_symbol = db.Column(db.String(10), nullable=False)
+    stock_symbol = db.Column(db.String(10), unique=True, nullable=False)
+    price_per_share = db.Column(db.Float, nullable=False)
+
+# Account model (User's held stocks)
+class Account(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    shares = db.Column(db.Integer, nullable=False, default=0)
+
+# Transaction model
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     shares = db.Column(db.Integer, nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
     transaction_type = db.Column(db.String(4), nullable=False)  # "BUY" or "SELL"
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    def __repr__(self):
-        return f"<Stock {self.stock_symbol} {self.transaction_type}>"
-
 
 # User loader, initialize database
 @login_manager.user_loader
 def load_user(user_id):
-    return Users.query.get(int(user_id))
+    return User.query.get(int(user_id))
+
 with app.app_context():
     db.create_all()
 
@@ -64,61 +76,65 @@ def dashboard():
 
 
 @app.route('/buy', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def buy():
     if request.method == 'POST':
         stock_symbol = request.form['stock_symbol'].upper()
         shares = int(request.form['shares'])
-        price_per_share = float(request.form['price_per_share'])
 
-        if shares <= 0 or price_per_share <= 0:
-            flash("Invalid stock purchase data!", "danger")
+        stock = Stock.query.filter_by(stock_symbol=stock_symbol).first()
+        if not stock:
+            flash("Stock not found!", "danger")
             return redirect(url_for('buy'))
-
-        new_transaction = StockTransaction(
-            user_id=current_user.id,
-            stock_symbol=stock_symbol,
-            shares=shares,
-            price_per_share=price_per_share,
-            transaction_type="BUY"
-        )
-
+        
+        total_cost = shares * stock.price_per_share
+        if current_user.cash_balance < total_cost:
+            flash("Insufficient funds!", "danger")
+            return redirect(url_for('buy'))
+        
+        current_user.cash_balance -= total_cost
+        account = Account.query.filter_by(user_id=current_user.id, stock_id=stock.id).first()
+        if account:
+            account.shares += shares
+        else:
+            new_account = Account(user_id=current_user.id, stock_id=stock.id, shares=shares)
+            db.session.add(new_account)
+        
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
         db.session.add(new_transaction)
         db.session.commit()
-        flash(f"Successfully bought {shares} shares of {stock_symbol}!", "success")
-        return redirect(url_for('dashboard'))
-
+        flash(f"Bought {shares} shares of {stock_symbol}!", "success")
+    
     return render_template('buy.html')
 
-@app.route('/sell')
-#@login_required
+@app.route('/sell', methods=['GET', 'POST'])
+@login_required
 def sell():
+    owned_stocks = Account.query.filter(Account.user_id == current_user.id, Account.shares > 0).join(Stock).add_columns(Stock.stock_symbol, Account.shares).all()
+    
     if request.method == 'POST':
         stock_symbol = request.form['stock_symbol'].upper()
         shares_to_sell = int(request.form['shares'])
 
-        owned_shares = db.session.query(
-            db.func.sum(StockTransaction.shares)
-        ).filter_by(user_id=current_user.id, stock_symbol=stock_symbol).scalar() or 0
-
-        if shares_to_sell > owned_shares:
+        stock = Stock.query.filter_by(stock_symbol=stock_symbol).first()
+        if not stock:
+            flash("Stock not found!", "danger")
+            return redirect(url_for('sell'))
+        
+        account = Account.query.filter_by(user_id=current_user.id, stock_id=stock.id).first()
+        if not account or account.shares < shares_to_sell:
             flash("Not enough shares to sell!", "danger")
             return redirect(url_for('sell'))
-
-        new_transaction = StockTransaction(
-            user_id=current_user.id,
-            stock_symbol=stock_symbol,
-            shares=-shares_to_sell, 
-            price_per_share=0,  
-            transaction_type="SELL"
-        )
-
+        
+        account.shares -= shares_to_sell
+        current_user.cash_balance += shares_to_sell * stock.price_per_share
+        
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
         db.session.add(new_transaction)
         db.session.commit()
-        flash(f"Successfully sold {shares_to_sell} shares of {stock_symbol}!", "success")
-        return redirect(url_for('dashboard'))
-
-    return render_template('sell.html')
+        flash(f"Sold {shares_to_sell} shares of {stock_symbol}!", "success")
+    
+    return render_template('sell.html', owned_stocks=owned_stocks)
 
 
 @app.route('/cashaccount')
@@ -159,7 +175,7 @@ def admin():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        user = Users.query.filter_by(username=request.form.get("username")).first()
+        user = User.query.filter_by(username=request.form.get("username")).first()
         if user and user.password == request.form.get("password"):
             login_user(user)
             return redirect(url_for("index"))
@@ -176,7 +192,7 @@ def logout():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        user = Users(
+        user = User(
             username=request.form.get("username"),
             password=request.form.get("password"),
             email=request.form.get("email"),

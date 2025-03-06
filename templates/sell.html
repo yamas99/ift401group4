@@ -10,7 +10,11 @@
             <form method="POST">
                 <div class="mb-3">
                     <label for="stock_symbol" class="form-label">Stock Symbol:</label>
-                    <input type="text" name="stock_symbol" class="form-control" required>
+                    <select name="stock_symbol" class="form-control" required>
+                        {% for stock in owned_stocks %}
+                            <option value="{{ stock.stock_symbol }}">{{ stock.stock_symbol }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <div class="mb-3">
