@@ -48,6 +48,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    stock_symbol = db.Column(db.String(10), nullable=False, default="NUL")
     shares = db.Column(db.Integer, nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
     transaction_type = db.Column(db.String(4), nullable=False)  # "BUY" or "SELL"
@@ -96,7 +97,9 @@ def cashaccount():
 @app.route('/transactions')
 @login_required
 def transactions():
-    return render_template('transactions.html')
+    transactions = Transaction.query.all()
+
+    return render_template('transactions.html', transactions=transactions)
 
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
@@ -123,7 +126,7 @@ def buy():
             new_account = Account(user_id=current_user.id, stock_id=stock.id, shares=shares)
             db.session.add(new_account)
         
-        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, stock_symbol=stock_symbol, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
         db.session.add(new_transaction)
         db.session.commit()
         flash(f"Bought {shares} share(s) of {stock_symbol}!", "success")
@@ -149,10 +152,12 @@ def sell():
             flash("Insufficient shares!", "danger")
             return redirect(url_for('sell'))
         
+
+
         account.shares -= shares_to_sell
         current_user.cash_balance += shares_to_sell * stock.price_per_share
-        
-        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
+
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, stock_symbol=stock_symbol, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
         db.session.add(new_transaction)
         db.session.commit()
         flash(f"Sold {shares_to_sell} share(s) of {stock_symbol}!", "success")

@@ -3,5 +3,29 @@
 {% block content %}
     <div>
         <h1>Welcome to the Transactions Page</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Shares</th>
+                    <th>Type</th>
+                    <th>Price Per Share</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    {% if current_user.id == transaction.user_id %}
+                    <tr>
+                        <td>{{ transaction.stock_symbol }}</td>
+                        <td>{{ transaction.shares }}</td>
+                        <td>{{ transaction.transaction_type }}</td>
+                        <td>{{ transaction.price_per_share }}</td>
+                        <td>{{ transaction.timestamp }}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
