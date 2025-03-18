@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from functools import wraps
+from flask_bcrypt import Bcrypt
 import os
 
 
@@ -10,9 +11,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
 
+# Database, login manager, Bcrypt init
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+bcrypt = Bcrypt(app)
 
 # User model
 class User(db.Model, UserMixin):
@@ -190,7 +193,7 @@ def admin():
 def login():
     if request.method == "POST":
         user = User.query.filter_by(username=request.form.get("username")).first()
-        if user and user.password == request.form.get("password"):
+        if user and bcrypt.check_password_hash(user.password, request.form.get("password")):
             login_user(user)
             return redirect(url_for("index"))
     return render_template("login.html")
@@ -204,9 +207,10 @@ def logout():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        hashedPassword = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
         user = User(
             username=request.form.get("username"),
-            password=request.form.get("password"),
+            password=hashedPassword,
             email=request.form.get("email"),
             fullName=request.form.get("fullName"),
             role="user"
