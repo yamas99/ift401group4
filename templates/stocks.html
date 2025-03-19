@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <h1>Welcome to the Stocks Page</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Price Per Share</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.stock_symbol }}</td>
+                        <td>{{ stock.price_per_share }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

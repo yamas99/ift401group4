@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from functools import wraps
 from flask_bcrypt import Bcrypt
-import os
+import os, random
 
 
 app = Flask(__name__)
@@ -41,6 +41,7 @@ class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    stock_symbol = db.Column(db.String(10), nullable=False, default="NUL")
     shares = db.Column(db.Integer, nullable=False, default=0)
 
 # Transaction model
@@ -89,16 +90,35 @@ def profile():
 def dashboard():
     return render_template('dashboard.html')
 
+@app.route('/stocks')
+@login_required
+def stocks():
+    stocks = Stock.query.all()
+    # Randomize stock prices
+    for stock in stocks:
+        # Stock volatility; higher number means higher price shifts
+        volatility = 0.5
+        fluctuation = round(random.uniform(-volatility,volatility), 2)
+
+        # No negative stock prices
+        if stock.price_per_share + fluctuation < 0:
+            stock.price_per_share = 0
+        else:
+            stock.price_per_share += fluctuation
+        
+        db.session.commit()
+    return render_template('stocks.html', stocks=stocks)
+
 @app.route('/cashaccount')
 @login_required
 def cashaccount():
-    return render_template('cashaccount.html')
+    accounts = Account.query.all()
+    return render_template('cashaccount.html', accounts=accounts)
 
 @app.route('/transactions')
 @login_required
 def transactions():
     transactions = Transaction.query.all()
-
     return render_template('transactions.html', transactions=transactions)
 
 @app.route('/buy', methods=['GET', 'POST'])
@@ -123,7 +143,7 @@ def buy():
         if account:
             account.shares += shares
         else:
-            new_account = Account(user_id=current_user.id, stock_id=stock.id, shares=shares)
+            new_account = Account(user_id=current_user.id, stock_id=stock.id, stock_symbol = stock.stock_symbol, shares=shares)
             db.session.add(new_account)
         
         new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, stock_symbol=stock_symbol, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")

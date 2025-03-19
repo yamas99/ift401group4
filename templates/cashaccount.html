@@ -4,5 +4,23 @@
     <div>
         <h1>Welcome to the Cash Account Page</h1>
         <h2>Current funds: {{ current_user.cash_balance }}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Stock Symbol</th>
+                    <th>Shares</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                    {% if current_user.id == account.user_id and account.shares > 0 %}
+                        <tr>
+                            <td>{{ account.stock_symbol }}</td>
+                            <td>{{ account.shares }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
