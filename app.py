@@ -70,7 +70,7 @@ with app.app_context():
 def admin_role_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.admin:
+        if not current_user.role == "admin":
             abort(403)
         return func(*args, **kwargs)
     return decorated_view
