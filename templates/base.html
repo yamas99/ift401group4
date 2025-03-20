@@ -25,45 +25,68 @@
 
       <!-- Links -->
       <ul class="nav nav-pills flex-column mb-auto">
-        {% if current_user.is_authenticated %}
+        {% if current_user.role == 'user' %}
         <li class="nav-item">
           <a href="{{url_for('dashboard')}}" class="nav-link text-white">
             <i class="bi bi-speedometer2 me-2" style="font-size: 16px;"></i> Dashboard
           </a>
         </li>
+        {% endif %}
+        {% if current_user.is_authenticated %}
         <li>
           <a href="{{url_for('stocks')}}" class="nav-link text-white">
             <i class="bi bi-graph-up me-2" style="font-size: 16px;"></i> Stock Listing
           </a>
         </li>
+        {% endif %}
+        {% if current_user.role == 'user' %}
         <li>
           <a href="{{url_for('buy')}}" class="nav-link text-white">
             <i class="bi bi-cart-plus me-2" style="font-size: 16px;"></i> Buy Stocks
           </a>
         </li>
+        {% endif %}
+        {% if current_user.role == 'user' %}
         <li>
           <a href="{{url_for('sell')}}" class="nav-link text-white">
             <i class="bi bi-cart-dash me-2" style="font-size: 16px;"></i> Sell Stocks
           </a>
         </li>
+        {% endif %}
+        {% if current_user.role == 'user' %}
         <li>
           <a href="{{url_for('cashaccount')}}" class="nav-link text-white">
             <i class="bi bi-cash-stack me-2" style="font-size: 16px;"></i> Cash Account
           </a>
         </li>
+        {% endif %}
+        {% if current_user.is_authenticated %}
         <li>
           <a href="{{url_for('transactions')}}" class="nav-link text-white">
             <i class="bi bi-journal-text me-2" style="font-size: 16px;"></i> Transactions
           </a>
         </li>
+        {% endif %}
         {% if current_user.role == "admin" %}
-        <!-- Admin Link -->
+        <!-- Admin Links -->
         <li>
-          <a href="{{url_for('admin')}}" class="nav-link text-white">
-            <i class="bi bi-people-fill me-2" style="font-size: 16px;"></i> Admin Dashboard
+          <a href="{{url_for('marketoptions')}}" class="nav-link text-white">
+            <i class="bi bi-clock-fill me-2" style="font-size: 16px;"></i>
+            Market Schedule
           </a>
         </li>
-        {% endif %}
+        <li>
+          <a href="{{url_for('stock')}}" class="nav-link text-white">
+            <i class="bi bi-cash-coin me-2" style="font-size: 16px;"></i>
+            Modify Stocks
+          </a>
+        </li>
+        <li>
+          <a href="{{url_for('users')}}" class="nav-link text-white">
+            <i class="bi bi-people-fill me-2" style="font-size: 16px;"></i>
+            User List
+          </a>
+        </li>
         {% endif %}
       </ul>
 
