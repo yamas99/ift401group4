@@ -3,19 +3,15 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Welcome to the Stock Sell Page</h1>
-
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
+        {% if messages %}
             <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+        {% endif %}
     {% endwith %}
-
     <div class="card mx-auto mt-4" style="max-width: 500px;">
         <div class="card-body">
             <h3 class="card-title text-center">Sell Your Stocks</h3>
-            <form method="POST">
+            <form method="POST" onsubmit="return confirmSell()">
                 <div class="mb-3">
                     <label for="stock_symbol" class="form-label">Stock Symbol:</label>
                     <select name="stock_symbol" class="form-control" required>
@@ -24,15 +20,21 @@
                         {% endfor %}
                     </select>
                 </div>
-
                 <div class="mb-3">
                     <label for="shares" class="form-label">Number of Shares:</label>
                     <input type="number" name="shares" class="form-control" required>
                 </div>
-
                 <button type="submit" class="btn btn-danger w-100">Sell</button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    function confirmSell() {
+        return confirm("Are you sure you want to sell this stock?");
+    }
+</script>
+
 {% endblock %}
+
