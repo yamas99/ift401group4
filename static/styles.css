@@ -1,5 +1,4 @@
 body {
-    display: flex;
     position: relative;
     overflow: hidden;
     background-color: #1a1a1a;
@@ -71,4 +70,13 @@ body {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+}
+
+.dropdown-toggle {
+    outline: 0;
+}
+
+.btn-login {
+    padding-left: 2.5rem; 
+    padding-right: 2.5rem;
 }

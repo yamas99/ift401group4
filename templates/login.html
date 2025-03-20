@@ -1,20 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="login-container">
-    <h2>Login</h2>
-    <form method="POST" action="/login">
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-        <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
-    </form>
-</div>
+<section class="vh-50">
+    <div class="container-fluid h-custom">
 
+      <!-- Header -->
+      <div class="text-center mb-4">
+        <h2>Please Log In to Access Content</h2>
+      </div>
+      <hr class="mb-4">
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Content -->
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-9 col-lg-6 col-xl-5">
+          <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp" class="img-fluid" alt="Login screen image" style="max-height: 1080px; width: 1080px;">
+        </div>
+        <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+
+          <!-- Form -->
+          <form method="POST" action="/login" class="mt-4">
+  
+            <div data-mdb-input-init class="form-outline mb-4">
+              <input type="text" id="username" name="username" class="form-control form-control-lg" placeholder="Username">
+            </div>
+  
+            <div data-mdb-input-init class="form-outline mb-3">
+              <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password">
+            </div>
+  
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="form-check mb-0">
+                <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3">
+                <label class="form-check-label" for="form2Example3">
+                  Remember me
+                </label>
+              </div>
+            </div>
+  
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg btn-login">Login</button>
+              <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="link-danger">Register</a></p>
+            </div>
+  
+          </form>
+        </div>
+      </div>
+    </div>
+</section>
 {% endblock %}

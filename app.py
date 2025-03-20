@@ -219,14 +219,18 @@ def login():
     if request.method == "POST":
         user = User.query.filter_by(username=request.form.get("username")).first()
         if user and bcrypt.check_password_hash(user.password, request.form.get("password")):
-            login_user(user)
+            login_user(user, remember=request.form.get("remember"))
             return redirect(url_for("index"))
+        else:
+            flash("Invalid username or password", "danger")
+            return redirect(url_for("login"))
     return render_template("login.html")
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    flash("You have successfully logged out", "success")
     return redirect(url_for("login"))
 
 @app.route('/register', methods=["GET", "POST"])

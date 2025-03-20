@@ -11,9 +11,5 @@
         {% if current_user.role == "admin" %}
         <h3>You are an admin.</h3>
         {% endif %}
-        
-        {% if current_user.is_authenticated %}
-                <h2><a href="/logout">Emergency Logout Link Replace This Later or Else</a></h2>
-        {% endif %}
     </div>
 {% endblock %}

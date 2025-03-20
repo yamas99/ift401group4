@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div>
+    <div class="container-fluid">
         <h1>Welcome to the Homepage</h1>
         {% if current_user.is_authenticated == false %}
             <a href="{{ url_for('login') }}" class="btn-custom">Login</a>
