@@ -151,7 +151,7 @@ def buy():
         db.session.commit()
         flash(f"Bought {shares} share(s) of {stock_symbol}!", "success")
     
-    return render_template('buy.html')
+    return render_template('buy.html', cash_balance=current_user.cash_balance)
 
 @app.route('/sell', methods=['GET', 'POST'])
 @login_required
@@ -182,7 +182,7 @@ def sell():
         db.session.commit()
         flash(f"Sold {shares_to_sell} share(s) of {stock_symbol}!", "success")
     
-    return render_template('sell.html', owned_stocks=owned_stocks)
+    return render_template('sell.html', cash_balance=current_user.cash_balance, owned_stocks=owned_stocks)
 
 
 #Admin routes - Admin role required
