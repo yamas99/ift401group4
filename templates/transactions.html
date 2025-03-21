@@ -1,31 +1,52 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div>
-        <h1>Welcome to the Transactions Page</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Stock Symbol</th>
-                    <th>Shares</th>
-                    <th>Type</th>
-                    <th>Price Per Share</th>
-                    <th>Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for transaction in transactions %}
-                    {% if current_user.id == transaction.user_id %}
-                    <tr>
-                        <td>{{ transaction.stock_symbol }}</td>
-                        <td>{{ transaction.shares }}</td>
-                        <td>{{ transaction.transaction_type }}</td>
-                        <td>{{ transaction.price_per_share }}</td>
-                        <td>{{ transaction.timestamp }}</td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="container mt-5">
+        <h1 class="text-center">Transactions</h1>
+        <hr>
+
+        <!-- Search Bar -->
+        <div class="d-flex justify-content-center my-4">
+            <input id="searchBar" type="text" class="form-control w-50" placeholder="Search transactions...">
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="d-flex justify-content-center">
+            <div class="table-responsive" style="width: 100%;">
+                <table class="table table-striped table-hover text-light" style="background-color: transparent;">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Shares</th>
+                            <th>Price Per Share</th>
+                            <th>Total Cost</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        {% for transaction in transactions %}
+                            {% if current_user.id == transaction.user_id %}
+                            <tr>
+                                <td>{{ transaction.transaction_type }}</td>
+                                <td>{{ transaction.stock_symbol }}</td>
+                                <td>{{ transaction.stock.stock_name }}</td>
+                                <td>{{ transaction.shares | abs }}</td>
+                                <td>{{ "${:,.2f}".format(transaction.price_per_share) }}</td>
+                                <td>{{ "${:,.2f}".format(transaction.shares * transaction.price_per_share) }}</td>
+                                <td>{{ transaction.timestamp }}</td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='transactions.js') }}"></script>
+
 {% endblock %}

@@ -34,6 +34,7 @@ class User(db.Model, UserMixin):
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     stock_symbol = db.Column(db.String(10), unique=True, nullable=False)
+    stock_name = db.Column(db.String(200), nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
 
 # Account model
@@ -41,7 +42,6 @@ class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
-    stock_symbol = db.Column(db.String(10), nullable=False, default="NUL")
     shares = db.Column(db.Integer, nullable=False, default=0)
 
 # Transaction model
@@ -49,11 +49,11 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
-    stock_symbol = db.Column(db.String(10), nullable=False, default="NUL")
     shares = db.Column(db.Integer, nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
-    transaction_type = db.Column(db.String(4), nullable=False)  # "BUY" or "SELL"
+    transaction_type = db.Column(db.String(4), nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    stock = db.relationship("Stock", backref="transactions")
 
 
 # User loader
@@ -170,10 +170,10 @@ def buy():
         if account:
             account.shares += shares
         else:
-            new_account = Account(user_id=current_user.id, stock_id=stock.id, stock_symbol = stock.stock_symbol, shares=shares)
+            new_account = Account(user_id=current_user.id, stock_id=stock.id, shares=shares)
             db.session.add(new_account)
         
-        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, stock_symbol=stock_symbol, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
         db.session.add(new_transaction)
         db.session.commit()
         flash(f"Bought {shares} share(s) of {stock_symbol}!", "success")
@@ -204,7 +204,7 @@ def sell():
         account.shares -= shares_to_sell
         current_user.cash_balance += shares_to_sell * stock.price_per_share
 
-        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, stock_symbol=stock_symbol, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
+        new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
         db.session.add(new_transaction)
         db.session.commit()
         flash(f"Sold {shares_to_sell} share(s) of {stock_symbol}!", "success")
