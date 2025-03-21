@@ -113,7 +113,34 @@ def stocks():
 @login_required
 def cashaccount():
     accounts = Account.query.all()
-    return render_template('cashaccount.html', accounts=accounts)
+    return render_template('cashaccount.html', accounts=accounts, cash_balance=current_user.cash_balance)
+
+@app.route('/deposit', methods=['POST'])
+@login_required
+def deposit():
+    amount = float(request.form.get("amount"))
+    if amount <= 0:
+        flash("Invalid deposit amount!", "danger")
+        return redirect(url_for('cashaccount'))
+
+    current_user.cash_balance += amount
+    db.session.commit()
+    flash(f"Successfully deposited ${amount}!", "success")
+    return redirect(url_for('cashaccount'))
+
+
+@app.route('/withdraw', methods=['POST'])
+@login_required
+def withdraw():
+    amount = float(request.form.get("amount"))
+    if amount <= 0 or amount > current_user.cash_balance:
+        flash("Invalid withdrawal amount!", "danger")
+        return redirect(url_for('cashaccount'))
+
+    current_user.cash_balance -= amount
+    db.session.commit()
+    flash(f"Successfully withdrew ${amount}!", "success")
+    return redirect(url_for('cashaccount'))
 
 @app.route('/transactions')
 @login_required
