@@ -3,5 +3,26 @@
 {% block content %}
     <div>
         <h1>Welcome to the User Dashboard</h1>
+        <h2>Current funds: {{ current_user.cash_balance }}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Shares</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account, stock in accounts %}
+                    {% if current_user.id == account.user_id and account.shares > 0 %}
+                        <tr>
+                            <td>{{ stock.stock_symbol }}</td>
+                            <td>{{ stock.stock_name }}</td>
+                            <td>{{ account.shares }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
