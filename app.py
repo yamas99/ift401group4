@@ -53,7 +53,6 @@ class Transaction(db.Model):
     price_per_share = db.Column(db.Float, nullable=False)
     transaction_type = db.Column(db.String(4), nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-    stock = db.relationship("Stock", backref="transactions")
 
 
 # User loader
@@ -88,7 +87,8 @@ def profile():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    accounts = db.session.query(Account, Stock).join(Stock).order_by(Account.shares.desc()).all()
+    return render_template('dashboard.html', accounts=accounts)
 
 @app.route('/stocks')
 @login_required
@@ -112,8 +112,7 @@ def stocks():
 @app.route('/cashaccount')
 @login_required
 def cashaccount():
-    accounts = Account.query.all()
-    return render_template('cashaccount.html', accounts=accounts, cash_balance=current_user.cash_balance)
+    return render_template('cashaccount.html', cash_balance=current_user.cash_balance)
 
 @app.route('/deposit', methods=['POST'])
 @login_required
@@ -145,7 +144,7 @@ def withdraw():
 @app.route('/transactions')
 @login_required
 def transactions():
-    transactions = Transaction.query.all()
+    transactions = db.session.query(Transaction, Stock).join(Stock).order_by(Transaction.timestamp.desc()).all()
     return render_template('transactions.html', transactions=transactions)
 
 @app.route('/buy', methods=['GET', 'POST'])

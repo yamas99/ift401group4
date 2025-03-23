@@ -26,12 +26,12 @@
                         </tr>
                     </thead>
                     <tbody id="transactionsTable">
-                        {% for transaction in transactions %}
+                        {% for transaction, stock in transactions %}
                             {% if current_user.id == transaction.user_id %}
                             <tr>
                                 <td>{{ transaction.transaction_type }}</td>
-                                <td>{{ transaction.stock_symbol }}</td>
-                                <td>{{ transaction.stock.stock_name }}</td>
+                                <td>{{ stock.stock_symbol }}</td>
+                                <td>{{ stock.stock_name }}</td>
                                 <td>{{ transaction.shares | abs }}</td>
                                 <td>{{ "${:,.2f}".format(transaction.price_per_share) }}</td>
                                 <td>{{ "${:,.2f}".format(transaction.shares * transaction.price_per_share) }}</td>
