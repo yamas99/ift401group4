@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from functools import wraps
 from flask_bcrypt import Bcrypt
+from datetime import datetime
 import os, random
 
 
@@ -54,15 +55,55 @@ class Transaction(db.Model):
     transaction_type = db.Column(db.String(4), nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+# Market schedule model
+class MarketSchedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    day_of_week = db.Column(db.String(10), nullable=False, default='Monday')
+    open_time = db.Column(db.Time, nullable=False, default='09:30:00')
+    close_time = db.Column(db.Time, nullable=False, default='16:00:00')
+
+# Market holiday model
+class MarketHoliday(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    name = db.Column(db.String(20), nullable=False) # Name of holiday
+
+# Inserts sample data if database tables are empty
+def init_data():
+
+    # Market Schedule table
+    if db.session.query(MarketSchedule).count() == 0:
+        schedules = [
+            MarketSchedule(day_of_week='Monday', open_time='09:30:00', close_time='16:00:00'),
+            MarketSchedule(day_of_week='Tuesday', open_time='09:30:00', close_time='16:00:00'),
+            MarketSchedule(day_of_week='Wednesday', open_time='09:30:00', close_time='16:00:00'),
+            MarketSchedule(day_of_week='Thursday', open_time='09:30:00', close_time='16:00:00'),
+            MarketSchedule(day_of_week='Friday', open_time='09:30:00', close_time='16:00:00')
+        ]
+        db.session.bulk_save_objects(schedules)
+        db.session.commit()
+    
+    # Stock table
+    if db.session.query(Stock).count() == 0:
+        stocks = [
+            Stock(stock_symbol='AAPL', stock_name='Apple Inc.', price_per_share=150.00),
+            Stock(stock_symbol='MSFT', stock_name='Microsoft Corporation', price_per_share=280.00),
+            Stock(stock_symbol='AMZN', stock_name='Amazon.com, Inc.', price_per_share=3300.00),
+            Stock(stock_symbol='GOOGL', stock_name='Alphabet Inc. Class A', price_per_share=2700.00),
+            Stock(stock_symbol='FB', stock_name='Meta Platforms, Inc.', price_per_share=340.00)
+        ]
+        db.session.add_all(stocks)
+        db.session.commit()
 
 # User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Create tables
+# Create tables, and populates some tables with necessary sample data for testing
 with app.app_context():
     db.create_all()
+    init_data()
 
 # Admin role required decorator - Checks to see if the user is an admin
 # Note! This decorator MUST be placed after the login_required decorator
@@ -73,6 +114,31 @@ def admin_role_required(func):
             abort(403)
         return func(*args, **kwargs)
     return decorated_view
+
+# Function to compare current time with market open/close times
+def is_market_open():
+    now = datetime.utcnow()  # UTC time
+    current_day = now.strftime("%A")  # e.g. 'Monday'
+    current_date = now.date()  # To check if day is holiday
+    current_time = now.time()
+
+    # Check if today is a holiday
+    holiday = MarketHoliday.query.filter_by(date=current_date).first()
+    if holiday:
+        return False
+    
+    # Check trading schedule if not a holiday
+    schedule = MarketSchedule.query.filter_by(day_of_week=current_day).first()
+
+    if schedule and schedule.open_time <= current_time <= schedule.close_time:
+        return True
+    return False
+
+# Context processor to make market status available to all templates
+@app.context_processor
+def inject_market_status():
+    return {'market_status': is_market_open()}
+
 
 # Routes
 @app.route('/')

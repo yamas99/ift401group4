@@ -100,6 +100,17 @@
           <span>Balance:</span> <span class="text-success">${{ "{:,.2f}".format(current_user.cash_balance) }}</span>
         </div>        
         {% endif %}
+        {% if current_user.is_authenticated %}
+        <!-- Market Hours Display -->
+        <div class="text-center mb-2 fw-bold w-100" style="font-size: 1em;">
+          <span>Market :</span> 
+          {% if market_status %}
+          <span class="text-success">Open</span> 
+          {% else %}
+          <span class="text-danger">Closed</span>
+          {% endif %}
+        </div>        
+        {% endif %}
 
         <!-- Profile + Logout Button -->
         <div class="d-flex justify-content-between align-items-center text-white">
