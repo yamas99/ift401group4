@@ -94,8 +94,8 @@
       <div class="mt-auto">
         <hr>
 
-        {% if current_user.is_authenticated %}
-        <!-- Cash Balance Display-->
+        {% if current_user.role == 'user' %}
+        <!-- Cash Balance Display -->
         <div class="text-center mb-2 fw-bold w-100" style="font-size: 1.4em;">
           <span>Balance:</span> <span class="text-success">${{ "{:,.2f}".format(current_user.cash_balance) }}</span>
         </div>        
