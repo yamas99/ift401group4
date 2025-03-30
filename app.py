@@ -262,12 +262,18 @@ def logout():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        if not all([request.form.get("fullName"), request.form.get("username"), request.form.get("email"), request.form.get("password"), request.form.get("verifyPassword")  ]):
+            flash("All fields are required!", "danger")
+            return redirect(url_for("register"))
+        if request.form.get("password") != request.form.get("verifyPassword"):
+            flash("Passwords do not match!", "danger")
+            return redirect(url_for("register"))
         hashedPassword = bcrypt.generate_password_hash(request.form.get("password")).decode('utf-8')
         user = User(
-            username=request.form.get("username"),
-            password=hashedPassword,
-            email=request.form.get("email"),
             fullName=request.form.get("fullName"),
+            username=request.form.get("username"),
+            email=request.form.get("email"),
+            password=hashedPassword,
             role="user"
         )
         db.session.add(user)
