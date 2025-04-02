@@ -285,11 +285,36 @@ def sell():
 def marketoptions():
     return render_template('admin/marketoptions.html')
 
-@app.route('/stock')
+@app.route('/stock', methods = ['GET', 'POST'])
 @login_required
 @admin_role_required
 def stock():
     return render_template('admin/stock.html')
+
+@app.route('/stock_create', methods = ['POST'])
+@login_required
+@admin_role_required
+def stock_create():
+    stock = Stock(
+        stock_symbol = request.form.get("stock_symbol"),
+        stock_name = request.form.get("stock_name"),
+        price_per_share = request.form.get("price_per_share")
+    )
+    db.session.add(stock)
+    db.session.commit()
+
+    return render_template('admin/marketoptions.html')
+
+@app.route('/stock_delete', methods = ['POST'])
+@login_required
+@admin_role_required
+def stock_delete():
+    stock_symbol = request.form.get("stock_symbol")
+    Stock.query.filter_by(stock_symbol = stock_symbol).delete()
+    db.session.commit()
+
+    return render_template('admin/users.html')
+        
 
 @app.route('/users')
 @login_required

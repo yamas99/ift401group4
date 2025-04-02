@@ -3,5 +3,37 @@
 {% block content %}
     <div>
         <h1>Welcome to the Stock Options Page</h1>
+
+        <h2>Create Stock</h2>
+        <form method="POST" action="/stock_create" class="mt-4">
+
+            <div class="form-outline mb-4">
+              <input type="text" id="stock_symbol" name="stock_symbol" class="form-control form-control-lg" placeholder="Stock Symbol">
+            </div>
+  
+            <div class="form-outline mb-4">
+              <input type="text" id="stock_name" name="stock_name" class="form-control form-control-lg" placeholder="Stock Name">
+            </div>
+  
+            <div class="form-outline mb-3">
+              <input type="number" id="price_per_share" name="price_per_share" class="form-control form-control-lg" placeholder="Price Per Share">
+            </div>
+
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg">Create Stock</button>
+            </div>
+        </form>
+
+        <h2>Delete Stock</h2>
+        <form method="POST" action="/stock_delete" class="mt-4">
+
+            <div class="form-outline mb-4">
+              <input type="text" id="stock_symbol" name="stock_symbol" class="form-control form-control-lg" placeholder="Stock Symbol">
+            </div>
+
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg">Delete Stock</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

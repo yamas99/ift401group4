@@ -27,7 +27,7 @@
                     </thead>
                     <tbody id="transactionsTable">
                         {% for transaction, stock in transactions %}
-                            {% if current_user.id == transaction.user_id %}
+                            {% if current_user.id == transaction.user_id or current_user.role == "admin" %}
                             <tr>
                                 <td>{{ transaction.transaction_type }}</td>
                                 <td>{{ stock.stock_symbol }}</td>
