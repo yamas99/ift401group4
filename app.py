@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(200), unique=True, nullable=False)
     fullName = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(10), nullable=False)
-    cash_balance = db.Column(db.Float, nullable=False, default=10000.0)  # Default starting balance
+    cash_balance = db.Column(db.Float, nullable=False)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -41,14 +41,14 @@ class Stock(db.Model):
 # Account model
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     shares = db.Column(db.Integer, nullable=False, default=0)
 
 # Transaction model
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     shares = db.Column(db.Integer, nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
@@ -277,13 +277,15 @@ def sell():
     return render_template('sell.html', cash_balance=current_user.cash_balance, owned_stocks=owned_stocks)
 
 
-#Admin routes - Admin role required
+##### Market option routes - Admin Required
 
 @app.route('/marketoptions')
 @login_required
 @admin_role_required
 def marketoptions():
     return render_template('admin/marketoptions.html')
+
+##### Stock modification routes - Admin Required
 
 @app.route('/stock', methods = ['GET', 'POST'])
 @login_required
@@ -314,14 +316,82 @@ def stock_delete():
     db.session.commit()
 
     return render_template('admin/users.html')
-        
 
+###### User modification routes - Admin Required
+ 
 @app.route('/users')
 @login_required
 @admin_role_required
 def users():
+<<<<<<< Updated upstream
     users = db.session.query(User).order_by(User.id.desc()).all()
     return render_template('admin/users.html', users=users)
+=======
+    users = User.query.order_by(User.id.asc()).all()
+    return render_template('admin/users.html', users=users)
+
+@app.route('/add_user', methods=['POST'])
+@login_required
+@admin_role_required
+def add_user():
+    fullName = request.form['name']
+    username = request.form['username']
+    email = request.form['email']
+    password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+    role = request.form['role']
+    if request.form['cash']:
+        cash_balance = request.form['cash']
+    else:
+        cash_balance = 10000.0  # Default starting balance
+
+    # Prevents duplicate usernames
+    if User.query.filter(User.username == username).first():
+        flash('Username already exists!', 'danger')
+        return redirect(url_for('users'))
+    
+    new_user = User(fullName=fullName, username=username, email=email, password=password, role=role, cash_balance=cash_balance)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    flash('User added successfully!', 'success')
+    return redirect(url_for('users'))
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_role_required
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        flash('User deleted successfully!', 'success')
+    
+    return redirect(url_for('users'))
+
+@app.route('/edit_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_role_required
+def edit_user(user_id):
+    user = User.query.get(user_id)
+    user.fullName = request.form['name']
+
+    # Prevents duplicate usernames
+    if User.query.filter(User.username == request.form['username']).first():
+        flash('Username already exists!', 'danger')
+        return redirect(url_for('users'))
+    
+    user.username = request.form['username']
+    user.email = request.form['email']
+    if request.form['password']:  # Keep old password if not provided
+        user.password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+    user.role = request.form['role']
+
+    db.session.commit()
+    flash('User details updated successfully!', 'success')
+    return redirect(url_for('users'))
+
+# Admin landing page - Admin Required
+>>>>>>> Stashed changes
 
 @app.route('/admin')
 @login_required
