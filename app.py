@@ -324,9 +324,12 @@ def stock_delete():
 @admin_role_required
 def users():
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     users = db.session.query(User).order_by(User.id.desc()).all()
     return render_template('admin/users.html', users=users)
 =======
+=======
+>>>>>>> Stashed changes
     users = User.query.order_by(User.id.asc()).all()
     return render_template('admin/users.html', users=users)
 
@@ -391,6 +394,9 @@ def edit_user(user_id):
     return redirect(url_for('users'))
 
 # Admin landing page - Admin Required
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 @app.route('/admin')
