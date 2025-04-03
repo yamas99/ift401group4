@@ -117,7 +117,7 @@ def admin_role_required(func):
 
 # Function to compare current time with market open/close times
 def is_market_open():
-    now = datetime.utcnow()  # UTC time
+    now = datetime.now()
     current_day = now.strftime("%A")  # e.g. 'Monday'
     current_date = now.date()  # To check if day is holiday
     current_time = now.time()
