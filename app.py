@@ -320,7 +320,8 @@ def stock_delete():
 @login_required
 @admin_role_required
 def users():
-    return render_template('admin/users.html')
+    users = db.session.query(User).order_by(User.id.desc()).all()
+    return render_template('admin/users.html', users=users)
 
 @app.route('/admin')
 @login_required
