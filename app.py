@@ -25,8 +25,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
     fullName = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(10), nullable=False)
-    cash_balance = db.Column(db.Float, nullable=False)
+    role = db.Column(db.String(10), nullable=False, default = 0)
+    cash_balance = db.Column(db.Float, nullable=False, default = 0)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -37,6 +37,8 @@ class Stock(db.Model):
     stock_symbol = db.Column(db.String(10), unique=True, nullable=False)
     stock_name = db.Column(db.String(200), nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
+    total_volume = db.Column(db.Integer, nullable=False)
+    purchased_volume = db.Column(db.Integer, nullable = False, default = 0)
 
 # Account model
 class Account(db.Model):
@@ -192,8 +194,6 @@ def deposit():
     db.session.commit()
     flash(f"Successfully deposited ${amount}!", "success")
     return redirect(url_for('cashaccount'))
-
-
 @app.route('/withdraw', methods=['POST'])
 @login_required
 def withdraw():
@@ -221,10 +221,16 @@ def buy():
         shares = int(request.form['shares'])
 
         stock = Stock.query.filter_by(stock_symbol=stock_symbol).first()
+
         if not stock:
             flash("Stock not found!", "danger")
             return redirect(url_for('buy'))
-        
+
+        available_volume = stock.total_volume - stock.purchased_volume
+        if available_volume < shares:
+            flash("Stock has insufficient shares!")
+            return redirect(url_for('buy'))
+
         total_cost = shares * stock.price_per_share
         if current_user.cash_balance < total_cost:
             flash("Insufficient funds!", "danger")
@@ -240,6 +246,8 @@ def buy():
         
         new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=shares, price_per_share=stock.price_per_share, transaction_type="BUY")
         db.session.add(new_transaction)
+
+        stock.purchased_volume += shares
         db.session.commit()
         flash(f"Bought {shares} share(s) of {stock_symbol}!", "success")
     
@@ -265,8 +273,8 @@ def sell():
             return redirect(url_for('sell'))
         
 
-
         account.shares -= shares_to_sell
+        stock.purchased_volume -= shares_to_sell
         current_user.cash_balance += shares_to_sell * stock.price_per_share
 
         new_transaction = Transaction(user_id=current_user.id, stock_id=stock.id, shares=-shares_to_sell, price_per_share=stock.price_per_share, transaction_type="SELL")
@@ -300,12 +308,13 @@ def stock_create():
     stock = Stock(
         stock_symbol = request.form.get("stock_symbol"),
         stock_name = request.form.get("stock_name"),
-        price_per_share = request.form.get("price_per_share")
+        price_per_share = request.form.get("price_per_share"),
+        total_volume = request.form.get("total_volume")
     )
     db.session.add(stock)
     db.session.commit()
 
-    return render_template('admin/marketoptions.html')
+    return render_template('admin/stock.html')
 
 @app.route('/stock_delete', methods = ['POST'])
 @login_required
@@ -315,7 +324,7 @@ def stock_delete():
     Stock.query.filter_by(stock_symbol = stock_symbol).delete()
     db.session.commit()
 
-    return render_template('admin/users.html')
+    return render_template('admin/stock.html')
 
 ###### User modification routes - Admin Required
  

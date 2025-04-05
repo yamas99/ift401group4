@@ -8,6 +8,8 @@
                 <tr>
                     <th>Stock Symbol</th>
                     <th>Price Per Share</th>
+                    <th>Total Volume</th>
+                    <th>Available Volume</th>
                 </tr>
             </thead>
             <tbody>
@@ -15,6 +17,8 @@
                     <tr>
                         <td>{{ stock.stock_symbol }}</td>
                         <td>{{ stock.price_per_share }}</td>
+                        <td>{{ stock.total_volume }}</td>
+                        <td>{{ stock.total_volume - stock.purchased_volume }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
