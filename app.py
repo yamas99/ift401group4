@@ -291,7 +291,48 @@ def sell():
 @login_required
 @admin_role_required
 def marketoptions():
-    return render_template('admin/marketoptions.html')
+    schedule = MarketSchedule.query.order_by(MarketSchedule.id.asc()).all()
+    holidays = MarketHoliday.query.order_by(MarketHoliday.date.asc()).all()
+    return render_template('admin/marketoptions.html', schedule=schedule, holidays=holidays)
+
+@app.route('/update_schedule', methods=['POST'])
+@login_required
+@admin_role_required
+def update_schedule():
+    for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
+        open_time = request.form.get(f'open_{day}')
+        close_time = request.form.get(f'close_{day}')
+        schedule = MarketSchedule.query.filter_by(day_of_week=day).first()
+        if schedule:
+            schedule.open_time = open_time
+            schedule.close_time = close_time
+    db.session.commit()
+    flash("Market schedule updated!", "success")
+    return redirect(url_for('marketoptions'))
+
+@app.route('/add_holiday', methods=['POST'])
+@login_required
+@admin_role_required
+def add_holiday():
+    date = request.form.get('holiday_date')
+    name = request.form.get('holiday_name') or "Unnamed Holiday"
+    if date:
+        new_holiday = MarketHoliday(date=date, name=name)
+        db.session.add(new_holiday)
+        db.session.commit()
+        flash("Holiday added!", "success")
+    return redirect(url_for('marketoptions'))
+
+@app.route('/delete_holiday/<int:holiday_id>', methods=['POST'])
+@login_required
+@admin_role_required
+def delete_holiday(holiday_id):
+    holiday = MarketHoliday.query.get(holiday_id)
+    if holiday:
+        db.session.delete(holiday)
+        db.session.commit()
+        flash("Holiday deleted!", "success")
+    return redirect(url_for('marketoptions'))
 
 ##### Stock modification routes - Admin Required
 

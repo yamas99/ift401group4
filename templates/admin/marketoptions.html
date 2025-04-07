@@ -1,7 +1,51 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <div>
-        <h1>Welcome to the Market Schedule Options Page</h1>
-    </div>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Market Schedule</h2>
+    <form method="POST" action="{{ url_for('update_schedule') }}" onsubmit="return confirm('Are you sure you want to update the market schedule?');">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Open Time</th>
+                    <th>Close Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day in schedule %}
+                <tr>
+                    <td>{{ day.day_of_week }}</td>
+                    <td><input type="time" name="open_{{ day.day_of_week }}" value="{{ day.open_time }}"></td>
+                    <td><input type="time" name="close_{{ day.day_of_week }}" value="{{ day.close_time }}"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary w-100">Update Schedule</button>
+    </form>
+
+    <hr>
+
+    <h2 class="text-center mb-4 mt-5">Market Holidays</h2>
+
+    <form method="POST" action="{{ url_for('add_holiday') }}" class="mb-4" onsubmit="return confirm('Are you sure you want to add this holiday?');">
+        <div class="input-group">
+            <input type="date" name="holiday_date" class="form-control" required>
+            <button type="submit" class="btn btn-success">Add Holiday</button>
+        </div>
+    </form>
+
+    <ul class="list-group">
+        {% for holiday in holidays %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ holiday.date }}
+            <form method="POST" action="{{ url_for('delete_holiday', holiday_id=holiday.id) }}" onsubmit="return confirm('Are you sure you want to delete this holiday?');">
+                <button class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
 {% endblock %}
