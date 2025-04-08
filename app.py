@@ -8,7 +8,11 @@ import os, random
 
 
 app = Flask(__name__)
+# Local database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/project_db'
+
+# AWS database
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:password@my-rds-instance.cjow08gck1jq.us-west-1.rds.amazonaws.com:3306/project_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
 
@@ -37,7 +41,7 @@ class Stock(db.Model):
     stock_symbol = db.Column(db.String(10), unique=True, nullable=False)
     stock_name = db.Column(db.String(200), nullable=False)
     price_per_share = db.Column(db.Float, nullable=False)
-    total_volume = db.Column(db.Integer, nullable=False)
+    total_volume = db.Column(db.Integer, nullable=False, default = 100)
     purchased_volume = db.Column(db.Integer, nullable = False, default = 0)
 
 # Account model
