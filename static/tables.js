@@ -58,4 +58,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize filtering for the different tables
     initializeTableFiltering("searchBar", "usersTable");
     initializeTableFiltering("searchBar", "transactionsTable");
+    initializeTableFiltering("searchBar", "stocksTable");
+
 });

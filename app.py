@@ -166,6 +166,12 @@ def dashboard():
 @login_required
 def stocks():
     stocks = Stock.query.all()
+
+    # Checking if market is open
+    if not is_market_open():
+        flash("Trading is not currently available, market is closed.", "warning")
+        return render_template('stocks.html', stocks=stocks)   
+    
     # Randomize stock prices
     for stock in stocks:
         # Stock volatility; higher number means higher price shifts
@@ -198,6 +204,7 @@ def deposit():
     db.session.commit()
     flash(f"Successfully deposited ${amount}!", "success")
     return redirect(url_for('cashaccount'))
+
 @app.route('/withdraw', methods=['POST'])
 @login_required
 def withdraw():
@@ -220,6 +227,11 @@ def transactions():
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
 def buy():
+    # Checking if market is open
+    if not is_market_open():
+        flash("Trading is not currently available, market is closed.", "warning")
+        return render_template('buy.html', cash_balance=current_user.cash_balance) 
+    
     if request.method == 'POST':
         stock_symbol = request.form['stock_symbol'].upper()
         shares = int(request.form['shares'])
@@ -261,6 +273,11 @@ def buy():
 @login_required
 def sell():
     owned_stocks = Account.query.filter(Account.user_id == current_user.id, Account.shares > 0).join(Stock).add_columns(Stock.stock_symbol, Account.shares).all()
+    
+    # Checking if market is open
+    if not is_market_open():    
+        flash("Trading is not currently available, market is closed.", "warning")
+        return render_template('sell.html', cash_balance=current_user.cash_balance, owned_stocks=owned_stocks)
     
     if request.method == 'POST':
         stock_symbol = request.form['stock_symbol'].upper()
