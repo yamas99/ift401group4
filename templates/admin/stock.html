@@ -1,43 +1,60 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div>
-        <h1>Welcome to the Stock Options Page</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-5 text-white">Stock Options</h1>
 
-        <h2>Create Stock</h2>
-        <form method="POST" action="/stock_create" class="mt-4">
+    <div class="row g-4">
+        <!-- Create Stock -->
+        <div class="col-lg-4">
+            <div class="card bg-dark text-white shadow">
+                <div class="card-body">
+                    <h4 class="card-title text-center">Create Stock</h4>
+                    <form method="POST" action="/stock_create" onsubmit="return confirm('Are you sure you want to create this stock?');">
+                        <input type="text" name="stock_symbol" class="form-control mb-3" placeholder="Stock Symbol">
+                        <input type="text" name="stock_name" class="form-control mb-3" placeholder="Stock Name">
+                        <input type="number" name="price_per_share" class="form-control mb-3" placeholder="Price Per Share">
+                        <input type="number" name="total_volume" class="form-control mb-3" placeholder="Total Volume">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-            <div class="form-outline mb-4">
-              <input type="text" id="stock_symbol" name="stock_symbol" class="form-control form-control-lg" placeholder="Stock Symbol">
+        <!-- Delete Stock -->
+        <div class="col-lg-4">
+            <div class="card bg-dark text-white shadow">
+                <div class="card-body">
+                    <h4 class="card-title text-center">Delete Stock</h4>
+                    <form method="POST" action="/stock_delete" onsubmit="return confirm('Are you sure you want to delete this stock?');">
+                        <input type="text" name="stock_symbol" class="form-control mb-3" placeholder="Stock Symbol">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-  
-            <div class="form-outline mb-4">
-              <input type="text" id="stock_name" name="stock_name" class="form-control form-control-lg" placeholder="Stock Name">
-            </div>
-  
-            <div class="form-outline mb-3">
-              <input type="number" id="price_per_share" name="price_per_share" class="form-control form-control-lg" placeholder="Price Per Share">
-            </div>
+        </div>
 
-            <div class="form-outline mb-3">
-              <input type="number" id="total_volume" name="total_volume" class="form-control form-control-lg" placeholder="Total Volume">
+        <!-- Update Stock -->
+        <div class="col-lg-4">
+            <div class="card bg-dark text-white shadow">
+                <div class="card-body">
+                    <h4 class="card-title text-center">Update Stock</h4>
+                    <form method="POST" action="/stock_update" onsubmit="return confirm('Are you sure you want to update this stock?');">
+                        <input type="text" name="stock_symbol" class="form-control mb-3" placeholder="Stock Symbol (unchanged)">
+                        <input type="text" name="stock_name" class="form-control mb-3" placeholder="New Stock Name">
+                        <input type="number" name="price_per_share" class="form-control mb-3" placeholder="New Price Per Share">
+                        <input type="number" name="total_volume" class="form-control mb-3" placeholder="New Total Volume">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning text-white">Update</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="text-center text-lg-start mt-4 pt-2">
-              <button type="submit" class="btn btn-primary btn-lg">Create Stock</button>
-            </div>
-        </form>
-
-        <h2>Delete Stock</h2>
-        <form method="POST" action="/stock_delete" class="mt-4">
-
-            <div class="form-outline mb-4">
-              <input type="text" id="stock_symbol" name="stock_symbol" class="form-control form-control-lg" placeholder="Stock Symbol">
-            </div>
-
-            <div class="text-center text-lg-start mt-4 pt-2">
-              <button type="submit" class="btn btn-primary btn-lg">Delete Stock</button>
-            </div>
-        </form>
+        </div>
     </div>
+</div>
 {% endblock %}

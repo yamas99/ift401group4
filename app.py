@@ -375,8 +375,8 @@ def stock_create():
     )
     db.session.add(stock)
     db.session.commit()
-
     return render_template('admin/stock.html')
+
 
 @app.route('/stock_delete', methods = ['POST'])
 @login_required
@@ -385,8 +385,34 @@ def stock_delete():
     stock_symbol = request.form.get("stock_symbol")
     Stock.query.filter_by(stock_symbol = stock_symbol).delete()
     db.session.commit()
-
     return render_template('admin/stock.html')
+
+
+@app.route('/stock_update', methods=['POST']) 
+@login_required
+@admin_role_required
+def stock_update():
+    stock_symbol = request.form.get("stock_symbol")
+    stock_name = request.form.get("stock_name")
+    price_per_share = request.form.get("price_per_share")
+    total_volume = request.form.get("total_volume")
+
+    stock = Stock.query.filter_by(stock_symbol=stock_symbol).first()
+    if not stock:
+        flash("Stock not found!", "danger")
+        return redirect(url_for('stock'))
+
+    if stock_name:
+        stock.stock_name = stock_name
+    if price_per_share:
+        stock.price_per_share = float(price_per_share)
+    if total_volume:
+        stock.total_volume = int(total_volume)
+
+    db.session.commit()
+    flash(f"Stock {stock_symbol} updated successfully!", "success")
+    return redirect(url_for('stock'))
+
 
 ###### User modification routes - Admin Required
  
