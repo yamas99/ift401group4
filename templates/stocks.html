@@ -1,58 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1 class="text-center">Stock Listings</h1>
-        <hr>
+<div class="container mt-5">
+    <h1 class="text-center">Stock Listings</h1>
+    <hr>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
-        <!-- Search Bar -->
-        <div class="d-flex justify-content-center my-4">
-            <input id="searchBar" type="text" class="form-control w-50" placeholder="Search stocks...">
-        </div>
-
-        <!-- Stocks Table -->
-        <div class="d-flex justify-content-center">
-            <div class="table-container">
-                <table class="table table-striped table-hover text-light">
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Name</th>
-                            <th>Price Per Share</th>
-                            <th>Available Volume</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stocksTable">
-                        {% for stock in stocks %}
-                            <tr>
-                                <td>{{ stock.stock_symbol }}</td>
-                                <td>{{ stock.stock_name }}</td>
-                                <td>${{ '%.2f'|format(stock.price_per_share) }}</td>
-                                <td>{{ stock.total_volume - stock.purchased_volume }}</td>
-                                <td>    <!-- Buy/Sell buttons are disabled if market is closed -->
-                                    <button class="btn btn-sm btn-success buy-button" href="{{ url_for('buy') }}" {% if not market_status.is_open %}disabled{% endif %}>Buy</button>
-                                    <button class="btn btn-sm btn-danger sell-button" href="{{ url_for('sell') }}" {% if not market_status.is_open %}disabled{% endif %}>Sell</button>                 
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <!-- Search Bar -->
+    <div class="d-flex justify-content-center my-4">
+        <input id="searchBar" type="text" class="form-control w-50" placeholder="Search stocks...">
     </div>
 
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='tables.js') }}"></script>
+    <!-- Stocks Table -->
+    <div class="d-flex justify-content-center">
+      <div class="table-container">
+        <table class="table table-striped table-hover text-light">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Name</th>
+              <th>Price Per Share</th>
+              <th>Available Volume</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="stocksTable">
+            {% for stock in stocks %}
+              <tr>
+                <td>{{ stock.stock_symbol }}</td>
+                <td>{{ stock.stock_name }}</td>
+                <td>${{ '%.2f'|format(stock.price_per_share) }}</td>
+                <td>{{ stock.total_volume - stock.purchased_volume }}</td>
+                <td>
+                  {% if market_status %}
+                    <a href="{{ url_for('buy') }}" class="btn btn-sm btn-success">Buy</a>
+                    <a href="{{ url_for('sell') }}" class="btn btn-sm btn-danger">Sell</a>
+                  {% else %}
+                    <span class="text-muted">Market Closed</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='tables.js') }}"></script>
 {% endblock %}
