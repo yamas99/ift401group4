@@ -229,7 +229,6 @@ def transactions():
 def buy():
     # Checking if market is open
     if not is_market_open():
-        flash("Trading is not currently available, market is closed.", "warning")
         return render_template('buy.html', cash_balance=current_user.cash_balance) 
     
     if request.method == 'POST':
@@ -276,7 +275,6 @@ def sell():
     
     # Checking if market is open
     if not is_market_open():    
-        flash("Trading is not currently available, market is closed.", "warning")
         return render_template('sell.html', cash_balance=current_user.cash_balance, owned_stocks=owned_stocks)
     
     if request.method == 'POST':

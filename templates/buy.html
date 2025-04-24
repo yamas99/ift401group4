@@ -3,17 +3,24 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Welcome to the Stock Purchase Page</h1>
-    
-    <!-- Display User's Cash Balance -->
+
     <div class="alert alert-info text-center">
         Current Balance: ${{ current_user.cash_balance }}
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+            {% endfor %}
         {% endif %}
     {% endwith %}
+
+    {% if not market_status %}
+        <div class="alert alert-warning text-center">
+            Trading is not currently available, market is closed.
+        </div>
+    {% endif %}
 
     <div class="card mx-auto mt-4" style="max-width: 500px;">
         <div class="card-body">
@@ -21,22 +28,25 @@
             <form method="POST" onsubmit="return confirmBuy()">
                 <div class="mb-3">
                     <label for="stock_symbol" class="form-label">Stock Symbol:</label>
-                    <input type="text" name="stock_symbol" class="form-control" required>
+                    <input type="text" name="stock_symbol" class="form-control" required {% if not market_status %}disabled{% endif %}>
                 </div>
                 <div class="mb-3">
                     <label for="shares" class="form-label">Number of Shares:</label>
-                    <input type="number" name="shares" class="form-control" required>
+                    <input type="number" name="shares" class="form-control" required {% if not market_status %}disabled{% endif %}>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Buy</button>
+                <button type="submit" class="btn btn-primary w-100" {% if not market_status %}disabled{% endif %}>Buy</button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    function confirmBuy() {
-        return confirm("Are you sure you want to buy this stock?");
-    }
+function confirmBuy() {
+    return confirm("Are you sure you want to buy this stock?");
+}
 </script>
-
 {% endblock %}
+
+
+
+

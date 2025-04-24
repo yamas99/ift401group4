@@ -4,16 +4,23 @@
 <div class="container mt-5">
     <h1 class="text-center">Welcome to the Stock Sell Page</h1>
 
-    <!-- Display User's Cash Balance -->
     <div class="alert alert-info text-center">
         Current Balance: ${{ current_user.cash_balance }}
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+            {% endfor %}
         {% endif %}
     {% endwith %}
+
+    {% if not market_status %}
+        <div class="alert alert-warning text-center">
+            Trading is not currently available, market is closed.
+        </div>
+    {% endif %}
 
     <div class="card mx-auto mt-4" style="max-width: 500px;">
         <div class="card-body">
@@ -21,7 +28,7 @@
             <form method="POST" onsubmit="return confirmSell()">
                 <div class="mb-3">
                     <label for="stock_symbol" class="form-label">Stock Symbol:</label>
-                    <select name="stock_symbol" class="form-control" required>
+                    <select name="stock_symbol" class="form-control" required {% if not market_status %}disabled{% endif %}>
                         {% for stock in owned_stocks %}
                             <option value="{{ stock.stock_symbol }}">{{ stock.stock_symbol }}</option>
                         {% endfor %}
@@ -29,20 +36,21 @@
                 </div>
                 <div class="mb-3">
                     <label for="shares" class="form-label">Number of Shares:</label>
-                    <input type="number" name="shares" class="form-control" required>
+                    <input type="number" name="shares" class="form-control" required {% if not market_status %}disabled{% endif %}>
                 </div>
-                <button type="submit" class="btn btn-danger w-100">Sell</button>
+                <button type="submit" class="btn btn-danger w-100" {% if not market_status %}disabled{% endif %}>Sell</button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    function confirmSell() {
-        return confirm("Are you sure you want to sell this stock?");
-    }
+function confirmSell() {
+    return confirm("Are you sure you want to sell this stock?");
+}
 </script>
-
 {% endblock %}
+
+
 
 
