@@ -1,28 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div>
-        <h1>Welcome to the User Dashboard</h1>
-        <h2>Current funds: {{ current_user.cash_balance }}</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Name</th>
-                    <th>Shares</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for account, stock in accounts %}
-                    {% if current_user.id == account.user_id and account.shares > 0 %}
-                        <tr>
-                            <td>{{ stock.stock_symbol }}</td>
-                            <td>{{ stock.stock_name }}</td>
-                            <td>{{ account.shares }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Welcome to the User Dashboard</h1>
+
+    <h2 class="mt-4">Current Balance: ${{ current_balance | round(2) }}</h2>
+    <h2>Stock Value: ${{ stock_value | round(2) }}</h2>
+    <h2>Total Value: ${{ total_value | round(2) }}</h2>
+
+    <table class="table table-dark table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account, stock in accounts %}
+                {% if account.shares > 0 %}
+                    <tr>
+                        <td>{{ stock.stock_symbol }}</td>
+                        <td>{{ stock.stock_name }}</td>
+                        <td>{{ account.shares }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

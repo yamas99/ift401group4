@@ -159,8 +159,18 @@ def profile():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    accounts = db.session.query(Account, Stock).join(Stock).order_by(Account.shares.desc()).all()
-    return render_template('dashboard.html', accounts=accounts)
+    accounts = db.session.query(Account, Stock).join(Stock).filter(Account.user_id == current_user.id).all()
+
+    # Calculate total stock value
+    stock_value = sum(account.shares * stock.price_per_share for account, stock in accounts)
+    current_balance = current_user.cash_balance
+    total_value = current_balance + stock_value
+
+    return render_template('dashboard.html', accounts=accounts,
+                           current_balance=current_balance,
+                           stock_value=stock_value,
+                           total_value=total_value)
+
 
 @app.route('/stocks')
 @login_required
