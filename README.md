@@ -1,3 +1,3 @@
-# IFT401Group4
+Stock Trading App
 
 GY push via GitHubDesktop
